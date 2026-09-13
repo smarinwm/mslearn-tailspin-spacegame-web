@@ -1,65 +1,192 @@
+# Tailspin Space Game — ASP.NET Core y Azure Pipelines
 
-# Contributing
+Repositorio de práctica basado en el proyecto **Tailspin Space Game** de Microsoft Learn, utilizado para trabajar conceptos de **ASP.NET Core**, **.NET 6** y **CI/CD con Azure Pipelines**.
 
-This project welcomes contributions and suggestions.  Most contributions require you to agree to a
-Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
-the rights to use your contribution. For details, visit https://cla.microsoft.com.
+El proyecto implementa una aplicación web que muestra clasificaciones de jugadores, perfiles y puntuaciones, y sirve como base para practicar compilación automatizada y procesos de integración continua en Azure DevOps.
 
-When you submit a pull request, a CLA-bot will automatically determine whether you need to provide
-a CLA and decorate the PR appropriately (e.g., label, comment). Simply follow the instructions
-provided by the bot. You will only need to do this once across all repos using our CLA.
+> Este repositorio procede de material de Microsoft Learn. No es un proyecto original de Silverio Marín; se conserva como entorno de aprendizaje y práctica técnica.
 
-This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
-For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
-contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
+## Tecnologías utilizadas
 
-## For maintainers: Updating feature branches
+- **C#**
+- **.NET 6**
+- **ASP.NET Core MVC**
+- **Razor Views**
+- **Azure Pipelines**
+- **Azure DevOps**
+- **YAML**
+- **JavaScript**
+- **Bootstrap**
+- **Gulp**
+- **JSON**
+- **Visual Studio / Visual Studio Code**
 
-This repository uses feature branches to associate code with specific modules on Microsoft Learn. Any changes you make to the default branch will likely need to be propagated to each feature branch in this repo. A common example is when we need to update Node packages in `package.json`.
+## Funcionalidades de la aplicación
 
-Here's one way to update the remote feature branches when you make a change to the default branch. Note that this process deletes all local branches except for `main`.
+La aplicación web incluye:
 
-```bash
-# Synchronize with the remote main branch
-git checkout main
-git pull origin main
-# Delete all local branches except for main
-git branch | grep -ve "main" | xargs git branch -D
-# List all remote branches except for main
-branches=$(git branch -r 2> /dev/null | grep -ve "main" | cut -d "/" -f 2)
-# Synchronize each branch with main and push the result
-while IFS= read -r branch; do
-    # Fetch and switch to feature branch
-    git fetch origin $branch
-    git checkout $branch
-    # Ensure local environment is free of extra files
-    git clean -xdf
-    # Merge down main
-    git merge --no-ff main
-    # Break out if merge failed
-    if [ $? -ne 0 ]; then
-        break
-    fi
-    # Push update
-    git push origin $branch
-done <<< "$branches"
-# Switch back to main
-git checkout main
+- Tabla de clasificación de jugadores.
+- Filtrado por modo de juego.
+- Filtrado por región.
+- Paginación de resultados.
+- Consulta de perfiles de usuario.
+- Datos de ejemplo almacenados en archivos JSON.
+- Arquitectura MVC con controladores, modelos y vistas.
+
+## Estructura principal
+
+```text
+mslearn-tailspin-spacegame-web/
+├── Tailspin.SpaceGame.Web/
+│   ├── Controllers/
+│   ├── Models/
+│   ├── Views/
+│   ├── SampleData/
+│   ├── wwwroot/
+│   ├── Program.cs
+│   ├── Startup.cs
+│   └── Tailspin.SpaceGame.Web.csproj
+├── azure-pipelines.yml
+├── gulpfile.js
+├── package.json
+└── Tailspin.SpaceGame.Web.sln
 ```
 
-# Legal Notices
+## Aplicación ASP.NET Core
 
-Microsoft and any contributors grant you a license to the Microsoft documentation and other content
-in this repository under the [Creative Commons Attribution 4.0 International Public License](https://creativecommons.org/licenses/by/4.0/legalcode),
-see the [LICENSE](LICENSE) file, and grant you a license to any code in the repository under the [MIT License](https://opensource.org/licenses/MIT), see the
-[LICENSE-CODE](LICENSE-CODE) file.
+El proyecto principal utiliza **ASP.NET Core MVC sobre .NET 6**.
 
-Microsoft, Windows, Microsoft Azure and/or other Microsoft products and services referenced in the documentation
-may be either trademarks or registered trademarks of Microsoft in the United States and/or other countries.
-The licenses for this project do not grant you rights to use any Microsoft names, logos, or trademarks.
-Microsoft's general trademark guidelines can be found at http://go.microsoft.com/fwlink/?LinkID=254653.
+`HomeController` se encarga de recuperar y filtrar las puntuaciones y perfiles utilizados en la clasificación.
 
-Privacy information can be found at https://privacy.microsoft.com/en-us/
+Los datos de ejemplo se encuentran en:
 
-Microsoft and any contributors reserve all other rights, whether under their respective copyrights, patents,
-or trademarks, whether by implication, estoppel or otherwise.
+```text
+Tailspin.SpaceGame.Web/SampleData/
+├── profiles.json
+└── scores.json
+```
+
+La clase `LocalDocumentDBRepository<T>` proporciona una abstracción sencilla de repositorio para consultar esos datos de forma asíncrona.
+
+## Azure Pipelines
+
+El repositorio contiene el archivo:
+
+```text
+azure-pipelines.yml
+```
+
+que define un pipeline de integración continua.
+
+La configuración incluida:
+
+- Se activa sobre la rama `main`.
+- Utiliza un agente `ubuntu-latest`.
+- Compila el proyecto en configuración `Release`.
+- Ejecuta la compilación mediante `dotnet build`.
+
+Ejemplo de la tarea principal:
+
+```yaml
+steps:
+- script: dotnet build --configuration $(buildConfiguration)
+  displayName: 'dotnet build $(buildConfiguration)'
+```
+
+Este pipeline permite practicar los fundamentos de **CI/CD**, automatización de compilaciones y configuración de pipelines como código en Azure DevOps.
+
+## Puesta en marcha local
+
+### Requisitos
+
+- **.NET 6 SDK**
+- Node.js y npm si se van a utilizar las tareas de frontend.
+- Visual Studio, Visual Studio Code o un IDE compatible con .NET.
+
+### Clonar el repositorio
+
+```bash
+git clone https://github.com/smarinwm/mslearn-tailspin-spacegame-web.git
+cd mslearn-tailspin-spacegame-web
+```
+
+### Restaurar dependencias .NET
+
+```bash
+dotnet restore
+```
+
+### Ejecutar la aplicación
+
+```bash
+dotnet run --project Tailspin.SpaceGame.Web
+```
+
+La consola mostrará la URL local en la que queda disponible la aplicación.
+
+## Dependencias frontend
+
+El proyecto también incluye herramientas de frontend gestionadas mediante npm y Gulp.
+
+Para instalar las dependencias:
+
+```bash
+npm install
+```
+
+Entre las herramientas de desarrollo incluidas se encuentran:
+
+- Gulp
+- gulp-clean-css
+- gulp-concat
+- gulp-uglify
+- node-sass
+
+## Objetivo didáctico
+
+Este repositorio resulta útil para practicar:
+
+- Desarrollo con ASP.NET Core MVC.
+- Organización de aplicaciones .NET.
+- Inyección de dependencias.
+- Patrón Repository.
+- Operaciones asíncronas en C#.
+- Lectura y consulta de datos JSON.
+- Razor Views.
+- Automatización con Azure Pipelines.
+- Pipelines definidos mediante YAML.
+- Integración continua.
+- Fundamentos de Azure DevOps.
+
+## Procedencia y licencias
+
+El código y los contenidos originales forman parte del material de **Microsoft Learn / Microsoft**.
+
+El repositorio incluye los archivos de licencia originales:
+
+- `LICENSE`
+- `LICENSE-CODE`
+
+El contenido documental original se distribuye bajo **Creative Commons Attribution 4.0** y el código bajo **MIT License**, según los términos incluidos en el propio repositorio.
+
+Microsoft, Azure y otros nombres de productos mencionados son marcas de sus respectivos propietarios.
+
+## Sobre este repositorio
+
+Esta copia se mantiene como material de **formación y práctica en ASP.NET Core, Azure DevOps y automatización CI/CD**.
+
+No pretende atribuir la autoría del proyecto original, sino documentar el trabajo realizado sobre material formativo público de Microsoft.
+
+## Perfil
+
+**Silverio Marín** — Docente TIC en Valencia, con experiencia en programación, cloud y tecnologías Microsoft.
+
+Más contenidos sobre **cloud computing, Azure y automatización**:
+
+**[silveriomarin.com/cloud](https://silveriomarin.com/cloud/)**
+
+GitHub: **[@smarinwm](https://github.com/smarinwm)**
+
+---
+
+Proyecto base: **Microsoft Learn — Tailspin Space Game**.
